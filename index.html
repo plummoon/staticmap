@@ -1,0 +1,99 @@
+<html>
+  <!-- See also: http://kempe.net/blog/2014/06/14/leaflet-pan-zoom-image.html -->
+  <head>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+    integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+    crossorigin=""/>
+  <style>
+    #image-map {
+      width: 100%;
+      height: 550px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+  </style>
+  </head>
+  <body>
+    <button onclick="addMarker()">添加标记</button>
+    <button onclick="addArea()">添加区域</button>
+    <button onclick="addPopup()">添加弹出框</button>
+    <button onclick="panToSomewhere()">移动中心到：</button><input type="text" id ="lat"/>,<input type="text" id ="lng"/>
+    <div id="image-map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+    integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+    crossorigin=""></script>    
+    <script>
+    // Using leaflet.js to pan and zoom a big image.
+    // See also: http://kempe.net/blog/2014/06/14/leaflet-pan-zoom-image.html
+
+    // create the slippy map
+    var map = L.map('image-map', {
+      minZoom: 3,
+      maxZoom: 6,
+      center: [0, 0],
+      zoom: 1,
+      crs: L.CRS.Simple
+    });
+    
+    // dimensions of the image
+    var w = 8192,
+        h = 6419,
+        url = 'image/Panorama1.jpg';
+        //url = 'http://kempe.net/images/newspaper-big.jpg';
+
+    // calculate the edges of the image, in coordinate space
+    var southWest = map.unproject([0, h], map.getMaxZoom());
+    var northEast = map.unproject([w, 0], map.getMaxZoom());
+    var bounds = new L.LatLngBounds(southWest, northEast);
+
+    // add the image overlay, 
+    // so that it covers the entire map
+    L.imageOverlay(url, bounds).addTo(map);
+
+    // tell leaflet that the map is exactly as big as the image
+    map.setMaxBounds(bounds);
+    L.marker([-20.5, 30.5]).addTo(map);
+
+    function addMarker(){
+      L.marker([-30, 60]).addTo(map).bindPopup("<p style='background-color:#eee;padding:5px'>民宅</p>张三的家<br>").openPopup();
+    }
+    function addArea(){
+      L.circle([-20, 75.7], 0.4, {
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.5
+      }).addTo(map).bindPopup("可疑区域");
+    }
+    /**
+    * 
+    *
+    */
+    function addPopup(){
+      var latlng = L.latLng(-31, 75.7);
+      var popup = L.popup()
+                    .setLatLng(latlng)
+                    .setContent('<p>Hello world!<br />This is a nice popup.</p>')
+                    .openOn(map);
+    }
+    /**
+    *
+    *
+    */
+    function panToSomewhere(){
+      map.panTo([document.getElementById("lat").value, document.getElementById("lng").value]);
+    }
+    //点击事件
+    function onMapClick(e) {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(map);
+    }
+    map.on('click', onMapClick);
+ 
+    </script>
+
+  </body>
+</html>
